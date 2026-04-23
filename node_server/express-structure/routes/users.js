@@ -1,5 +1,6 @@
 import express from "express";
 import User from "../models/user.js";
+import APIError from "../utils/ApiError.js";
 
 const router = express.Router();
 
@@ -13,38 +14,30 @@ router.get("/", async (req, res) => {
     query.age = { $gte: parseInt(req.query.minAge) };
   }
   const users = await User.find(query);
-  res.status(200).json(users);
+  res.status(200).json({ success: true, data: user });
 });
 
 // GET /api/users/:id
 router.get("/:id", async (req, res) => {
   const user = await User.findById(req.params.id);
   if (!user) return res.status(404).json({ error: "User not found" });
-  res.status(200).json(user);
+  res.status(200).json({ success: true, data: user });
 });
 
 // POST /api/users
 router.post("/", async (req, res) => {
-  try {
-    const user = await User.create(req.body);
-    res.status(201).json(user);
-  } catch (err) {
-    res.status(400).json({ error: err.message });
-  }
+  const user = await User.create(req.body);
+  res.status(201).json({ success: true, data: user });
 });
 
 // PUT /api/users/:id
 router.put("/:id", async (req, res) => {
-  try {
-    const user = await User.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-      runValidators: true,
-    });
-    if (!user) return res.status(404).json({ error: "User not found" });
-    res.status(200).json(user);
-  } catch (err) {
-    res.status(400).json({ error: err.message });
-  }
+  const user = await User.findByIdAndUpdate(req.params.id, req.body, {
+    new: true,
+    runValidators: true,
+  });
+  if (!user) throw ApiError.notFound("User not found");
+  res.status(200).json({ success: true, data: user });
 });
 
 // DELETE /api/users/:id

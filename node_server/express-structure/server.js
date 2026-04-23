@@ -3,6 +3,8 @@ import express from "express";
 import connectDB from "./config/db.js";
 import logger from "./middleware/logger.js";
 import timer from "./middleware/timer.js";
+import errorHandler from "./middleware/errorHandler.js";
+import APIError from "./utils/ApiError.js";
 import requireAuth from "./middleware/requireAuth.js";
 import usersRouter from "./routes/users.js";
 import authRouter from "./routes/auth.js";
@@ -27,6 +29,8 @@ app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).json({ error: "Server error" });
 });
+
+app.use(errorHandler);
 
 const start = async () => {
   await connectDB();
