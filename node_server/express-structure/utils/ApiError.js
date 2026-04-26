@@ -1,4 +1,4 @@
-class APIError extends Error {
+class ApiError extends Error {
   constructor(statusCode, message) {
     super(message);
     this.statusCode = statusCode;
@@ -7,19 +7,22 @@ class APIError extends Error {
   }
 
   static badRequest(message = "Bad request") {
-    return new APIError(400, message);
+    return new ApiError(400, message);
   }
 
   static unauthorized(message = "Unauthorized") {
-    return new APIError(401, message);
+    return new ApiError(401, message);
   }
 
-  static forbidden(message = "Not Found") {
-    return new APIError(403, message);
+  static conflict(message = "Conflict") {
+    return new ApiError(409, message);
+  }
+  static notFound(message = "Not found") {
+    return new ApiError(404, message);
   }
 
-  static conflict(message = "conflict") {
-    return new APIError(409, message);
+  static forbidden(message = "Forbidden") {
+    return new ApiError(403, message);
   }
 }
-export default APIError;
+export default ApiError;

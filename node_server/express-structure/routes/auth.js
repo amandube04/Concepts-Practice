@@ -1,15 +1,17 @@
 import express from "express";
 import jwt from "jsonwebtoken";
 import User from "../models/user.js";
-import APIError from "../utils/ApiError.js";
+import ApiError from "../utils/ApiError.js";
+import validate from "../middleware/validate.js";
+import { registerSchema, loginSchema } from "../schemas/auth.schema.js";
 
 const router = express.Router();
 
-router.post("/register", async (req, res) => {
+router.post("/register", validate(registerSchema), async (req, res) => {
   const { name, email, password, age } = req.body;
 
   const existing = await User.findOne({ email });
-  if (existing) throw APIError.conflict("Email already registered");
+  if (existing) throw ApiError.conflict("Email already registered");
 
   const user = await User.create({ name, email, password, age });
 
@@ -18,11 +20,8 @@ router.post("/register", async (req, res) => {
   res.status(201).json({ success: true, data: userObj });
 });
 
-router.post("/login", async (req, res) => {
+router.post("/login", validate(loginSchema), async (req, res) => {
   const { email, password } = req.body;
-  if (!email || !password) {
-    throw ApiError.badRequest("Email and password required");
-  }
 
   const user = await User.findOne({ email }).select("+password"); // schema hides password need to fetch seperately
   if (!user) throw ApiError.unauthorized("Invalid credentials");
